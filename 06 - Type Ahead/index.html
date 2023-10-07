@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+<script>
+const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+/*inicializamos array donde pondremos la informacion*/
+const cities = [];
+/*fetch devuelve lo que se llama una promesa (funciona de una forma un poco diferente a hacer una http request o a hacer un callback),
+no devuelve los datos inmediatemente sino que lo hara eventualmente*/
+fetch(endpoint)
+  /* lo llama blob por exactamente no sabe que tipo de datos es, hacer un JSON.parse no serviria ya que son datos en raw, por eso el segundo thenque 
+  sera el encargado de ejecutarse cuando se ejecute el metodo JSON de blob*/
+  .then(blob => blob.json())
+  /* esto es ES6 (estamos "spread into it"), utilizamos esto por que hacer cities = data da typeError (po lor q tendriamos que transformarlo en let cities, 
+  pero aqui queremos que sea una contante), y hacer push meteria data como un objeto del array*/
+  .then(data => cities.push(...data));
+
+function findMatches(wordToMatch, cities){
+  return cities.filter(place => {
+    /*¿como se pone una variable en una expresion regular? hay que crearla antes en una variable, no puede introducirse directamente en el match*/
+    /* 'g' es global que va a buscar en todo el string y 'i' es que no va a tener en cuante mayusculas y minusculas*/
+    const regex = new RegExp(wordToMatch, 'gi');
+    return place.city.match(regex) || place.state.match(regex);
+  });
+}
+
+//funcion que incluye comas en los miles de un numero para formatearlo
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// funcion que muestra los resutlados
+function displayMatches(){
+  const matchArray = findMatches(this.value, cities);
+  // iteramos a traves del array para generar el html de la lista
+  const html = matchArray.map(place=>{
+    //utilizamos expresion regular para encontrar el elemento que se esta buscando para subrayarlo
+    const regex = new RegExp(this.value, 'gi');
+    //reemplaza la parte que corresponda con lo buscado en la regexp con un span
+    const cityName = place.city.replace(regex, `<span = class="hl">${this.value}</span>`);
+    const stateName = place.state.replace(regex, `<span = class="hl">${this.value}</span>`);
+    return `
+      <li>
+        <span class="name">${cityName}, ${stateName}</span>
+        <span class="population">${numberWithCommas(place.population)}</span>
+      </li>
+    `;
+  }).join(''); // transforma el array en un gran string
+  suggestions.innerHTML = html;
+}
+
+const searchInput =document.querySelector('.search');
+const suggestions =document.querySelector('.suggestions');
+
+// el evento change solo se diapara cuando el "foco" sale del input, no se porque se mantiene esta linea
+searchInput.addEventListener('change', displayMatches);
+// asi se dispara cuando "se suelta" una tecla
+searchInput.addEventListener('keyup', displayMatches);
+</script>
+  </body>
+</html>

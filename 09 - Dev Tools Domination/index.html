@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Console Tricks!</title>
+</head>
+<body>
+
+  <p onClick="makeGreen()">×BREAK×DOWN×</p>
+
+  <script>
+    const dogs = [{ name: 'Snickers', age: 2 }, { name: 'hugo', age: 8 }];
+
+    function makeGreen() {
+      const p = document.querySelector('p');
+      p.style.color = '#BADA55';
+      p.style.fontSize = '50px';
+    }
+    //primero enseña a poner un "breakpoint" en el debugger, en chrome, para ver que parte de JS esta modificando un elemento
+    // para ello  se va a "inspeccionar elemento" -> "break on" -> "attribute moficitations"
+    // 
+
+    // Regular
+    console.log('hello');
+
+
+    // Interpolated
+    // permite interpolar un texto utilizando %s
+    console.log('Hello I am a %s string!', '💩');
+    // y esta es la forma ES6 para hacer lo mismo
+    let var1 = '💩';
+    console.log(`Hello I am a ${var1} string!`);
+
+
+    // Styled
+    // se puede estilizar el console.log
+    console.log('%c I am some great text', 'font-size:20px; background:red; text-shadow: 4px 4px 0 blue');
+
+
+    // warning!
+    // añade un icono de warning para remarcar la importacia del mensaje, y no muestra un "stack trace" de desde donde se le ha llamado
+    console.warn('OH NOOO');
+
+
+    // Error :|
+    // añade un icono de error
+    console.error('Shit!');
+
+
+    // Info
+    // añade un icono de info
+    console.info('Crocodiles eat 3-4 people per year');
+
+
+    // Testing
+    // permite comprobar si no se cumple una condicion, es como un console.log dentro de un if que se muestra si la condicion es falsa
+    const p = document.querySelector('p');
+
+    console.assert(p.classList.contains('ouch'), 'That is wrong!');
+
+
+    // clearing
+    // limpia la consola
+    console.clear();
+
+    // Viewing DOM Elements
+    // con esto podemos ver un elemento y sus metodos y propiedades
+    // ambos hacen los mismo en firefox, en el tutorial aparece que .log muestra tal cual elemento esta en html "<p onClick="makeGreen()">×BREAK×DOWN×</p>"
+    // y .dir es el que muestra la estructura del elemento
+    console.log(p);
+    console.dir(p);
+
+
+    // Grouping together
+    // con esto podemos agrupar varios console dentro de un grupo desplegable en la consola
+    dogs.forEach(dog => {
+      console.groupCollapsed(`${dog.name}`);
+      console.log(`This is ${dog.name}`);
+      console.log(`${dog.name} is ${dog.age} years old`);
+      console.log(`${dog.name} is ${dog.age * 7} dog years old`);
+      console.groupEnd(`${dog.name}`);
+    });
+
+    // counting
+    // cuenta cuantas veces se usa una palabra, numero, objeto, nodo del DOM, o lo que sea
+    console.count('Wes'); //1
+    console.count('Wes'); //2
+    console.count('Steve'); //1
+    console.count('Steve'); //2
+    console.count('Wes'); //3
+    console.count('Steve'); //3
+    console.count('Wes'); //4
+    console.count('Steve'); //4
+    console.count('Steve'); //5
+    console.count('Steve');
+    console.count('Steve');
+    console.count('Steve');
+
+
+    // timing
+    // esto nos dice cuanto tiempo toma hacer algo
+    // se inicia el cronometro
+    console.time('fetching data');
+    fetch('https://api.github.com/users/wesbos')
+      .then(data => data.json())
+      .then(data => {
+        // finaliza el cronometro y lo muestra por consola
+        console.timeEnd('fetching data');
+
+        console.log(data);
+      });
+
+    
+    // tables
+    // muestra un objeto o array por consola formateado como una tabla
+    console.table(dogs);
+
+
+  </script>
+</body>
+</html>

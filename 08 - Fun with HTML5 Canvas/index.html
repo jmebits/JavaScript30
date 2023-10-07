@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML5 Canvas</title>
+</head>
+<body>
+<canvas id="draw" width="800" height="800"></canvas>
+<script>
+  // el canvas es una especia de paint en web donde simplemente tienes un bloque de los pixeles actuales y donde puede dibujar programaticamente
+  const canvas = document.querySelector('#draw');
+  // no se dibuja directamente en el canvas si no en su contexto, este puede ser 2D o 3D
+  const ctx = canvas.getContext('2d');
+
+  // aqui le damos el tamaño de la ventana al canvas
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // estilizamos
+  ctx.strokeStyle = "#BADA55";
+  ctx.lineJoin = 'round'; // cuando la linea se une con otra (?)
+  ctx.lineCap = 'round';  // como acaba la linea
+  ctx.lineWidth = 100;
+  // esto crea el efecto de mezcla en transparencia, buscar en google GlobalCompositeOperation y sus opciones
+  ctx.globalCompositeOperation = 'multiply';
+
+  // es una "flag" que lo que hace es avisarnos cuando estaremos dibujando, cosa que sera
+  // cuando hayamos hecho click, esto es para que no dibuje simplemente siguiendo el raton
+  let isDrawing = false;
+
+  // una linea necesita un principio y un final, y con estas variables le estamos diciando donde empieza la linea
+  // en realidad el funcionamiento de esta aplicacion va a ser, en vez de dibujar puntos haya donde tenemos clicado,
+  // va a dibujar lineas desde la ultima localizacion conocida hasta la actual, 
+  let lastX = 0;
+  let lastY = 0;
+
+  // para seeleccionar el color aqui utilizamos el formato HSL, que nos permite seleccionar el color (H, de 0 a 360) 
+  // dentro del abanico, la saturacion (S) y el brillo (L)
+  let hue = 0;
+
+  let direction = true;
+
+  function draw(e){
+    if(!isDrawing) return; // si no esta dibujando salimos de la funcion
+    console.log(e);
+    ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+    hue++;
+    // lo bueno del formato HSL es que aunque nos pasemos de 360 el sigue haciendo el ciclo de color, 
+    //es lo mismo que si hicieramos: if(hue >= 360) { hue = 0};
+    // este codigo inicia la linea
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY); //empieza la linea
+    ctx.lineTo(e.offsetX, e.offsetY); // termina la linea
+    // y este lo plasma en el canvas
+    ctx.stroke();
+    
+    [lastX, lastY] = [e.offsetX, e.offsetY];
+    // lo anterior es lo mismo que esto
+    //lastX = e.offsetX;
+    //lastY = e.offsetY;
+
+    // se encarga de variar el ancho de la linea
+    if(ctx.lineWidth >= 100 || ctx.lineWidth <= 1){
+      direction = !direction;
+    }
+    if(direction){
+      ctx.lineWidth++;
+    } else {
+      ctx.lineWidth--;
+    }
+
+  }
+
+  
+  // arrow functions que nos permiten definir directamente que queremos hacer desde dentro del addEventlistener
+  //canvas.addEventListener('mousedown', () => isDrawing = true);
+  canvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    // esto es para solucionar dos problemas: primero que al empezar la linea por primera vez no la dibuje 
+    // desde las coordenadas 0,0; segundo que al soltar el raton y volver a clicar la linea comienza donde
+    // termino la ultima haciendo que todo el dibujo sea de una misma linea  
+    [lastX, lastY] = [e.offsetX, e.offsetY]; 
+  }); 
+
+  canvas.addEventListener('mousemove', draw);
+
+  canvas.addEventListener('mouseup', () => isDrawing = false);
+  canvas.addEventListener('mouseout', () => isDrawing = false);
+
+</script>
+
+<style>
+  html, body {
+    margin: 0;
+  }
+</style>
+
+</body>
+</html>
